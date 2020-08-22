@@ -1,0 +1,60 @@
+#load the data
+mydata = read.csv("C:\\Users\\lenovo\\Desktop\\IBM.csv")
+colnames(mydata)[1] <- "Age"
+library(dplyr)
+glimpse(mydata)
+summary(mydata)
+apply(is.na(mydata), 2, sum) #checking missing values
+mydata$EmployeeNumber<- NULL
+mydata$StandardHours <- NULL
+mydata$Over18 <- NULL
+mydata$EmployeeCount <- NULL
+cat("Data Set has ",dim(mydata)[1], " Rows and ", dim(mydata)[2], " Columns" )
+sum(is.na(duplicated(mydata)))
+library(ggplot2)#Visualization of Attrition
+mydata %>%
+  group_by(Attrition) %>%
+  tally() %>%
+  ggplot(aes(x = Attrition, y = n,fill=Attrition)) +
+  geom_bar(stat = "identity") +
+  theme_minimal()+
+  labs(x="Attrition", y="Count of Attriation")+
+  ggtitle("Attrition")+
+  geom_text(aes(label = n), vjust = -0.5, position = position_dodge(0.9))
+library(ggplot2) #Influence of each variable on the Attrition of the organization
+ggplot(data=mydata, aes(mydata$Age)) + 
+  geom_histogram(breaks=seq(20, 50, by=2), 
+                 col="red", 
+                 aes(fill=..count..))+
+  labs(x="Age", y="Count")+
+  scale_fill_gradient("Count", low="blue", high="dark green")
+library(grid)
+library(gridExtra)
+travelPlot <- ggplot(mydata,aes(BusinessTravel,fill=Attrition))+geom_bar()
+depPlot <- ggplot(mydata,aes(Department,fill = Attrition))+geom_bar()
+distPlot <- ggplot(mydata,aes(DistanceFromHome,fill=Attrition))+geom_bar()
+grid.arrange(travelPlot,depPlot,distPlot, nrow=3)
+
+eduPlot <- ggplot(mydata,aes(Education,fill=Attrition))+geom_bar()
+edufieldPlot <- ggplot(mydata,aes(EducationField,fill=Attrition))+geom_bar()
+envPlot <- ggplot(mydata,aes(EnvironmentSatisfaction,fill=Attrition))+geom_bar()
+genPlot <- ggplot(mydata,aes(Gender,fill=Attrition))+geom_bar()
+grid.arrange(distPlot,eduPlot,edufieldPlot,envPlot,genPlot,ncol=2)
+
+StockPlot <- ggplot(mydata,aes(StockOptionLevel,fill = Attrition))+geom_bar()
+workingYearsPlot <- ggplot(mydata,aes(TotalWorkingYears,fill = Attrition))+geom_bar()
+workingYearsPlot
+WLBPlot <- ggplot(mydata,aes(WorkLifeBalance,fill = Attrition))+geom_bar()
+WLBPlot
+
+library(corrplot) ##co-relation of varaiables
+library(psych)
+mydata_cor <- mydata
+
+for(i in 1:ncol(mydata_cor)){
+  
+  mydata_cor[,i]<- as.integer(mydata_cor[,i])
+}
+
+corrplot(cor(mydata_cor))
+
